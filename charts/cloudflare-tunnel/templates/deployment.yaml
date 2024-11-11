@@ -45,6 +45,8 @@ spec:
             # cloudflared will actually do. This file is created by a ConfigMap.
             - --config
             - /etc/cloudflared/config/config.yaml
+            - --origincert
+            - /etc/cloudflared/cert/cert.pem
             - run
           livenessProbe:
             httpGet:
@@ -65,12 +67,18 @@ spec:
             - name: creds
               mountPath: /etc/cloudflared/creds
               readOnly: true
+            - name: cert
+              mountPath: /etc/cloudflared/cert
+              readOnly: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
         - name: creds
           secret:
-            secretName: {{ .Values.cloudflare.secretName | default (include "cloudflare-tunnel.fullname" .) }}
+            secretName: {{ .Values.cloudflare.tunnelSecretSecretName | default (include "cloudflare-tunnel.generate.tunnelSecretSecretName" .) }}
+        - name: cert
+          secret:
+            secretName: {{ .Values.cloudflare.certSecretName | default (include "cloudflare-tunnel.generate.certSecretName" .) }}
         - name: config
           configMap:
             name: {{ include "cloudflare-tunnel.fullname" . }}

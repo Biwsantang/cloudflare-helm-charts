@@ -8,10 +8,14 @@ cloudflare:
   tunnelName: ""
   # The ID of the above tunnel.
   tunnelId: ""
-  # The secret for the tunnel.
-  secret: ""
+  # The credential for the tunnel.
+  tunnelSecret: ""
   # If defined, no secret is created for the credentials, and instead, the secret referenced is used
-  secretName: null
+  tunnelSecretSecretName: null
+  # The certicate for the tunnel.
+  cert: ""
+  # If defined, no secret is created for the credentials, and instead, the secret referenced is used
+  certSecretName: null
   # If true, turn on WARP routing for TCP
   enableWarp: false
   # Define ingress rules for the tunnel. See
