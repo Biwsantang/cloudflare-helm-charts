@@ -15,7 +15,6 @@ spec:
     metadata:
       annotations:
         # These are here so the deployment rolls when the config or secret change.
-        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
@@ -39,14 +38,16 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+           env:
+            - name: TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.cloudflare.tokenSecretName | default (include "cloudflare-tunnel.generate.token-secretname" .) }}
+                  key: token
           args:
             - tunnel
-            # Points cloudflared to the config file, which configures what
-            # cloudflared will actually do. This file is created by a ConfigMap.
-            - --config
-            - /etc/cloudflared/config/config.yaml
-            - --origincert
-            - /etc/cloudflared/cert/cert.pem
+            - --token
+            - $(TOKEN)
             - run
           livenessProbe:
             httpGet:
@@ -57,34 +58,8 @@ spec:
             failureThreshold: 1
             initialDelaySeconds: 10
             periodSeconds: 10
-          volumeMounts:
-            - name: config
-              mountPath: /etc/cloudflared/config
-              readOnly: true
-            # Each tunnel has an associated "credentials file" which authorizes machines
-            # to run the tunnel. cloudflared will read this file from its local filesystem,
-            # and it'll be stored in a k8s secret.
-            - name: creds
-              mountPath: /etc/cloudflared/creds
-              readOnly: true
-            - name: cert
-              mountPath: /etc/cloudflared/cert
-              readOnly: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      volumes:
-        - name: creds
-          secret:
-            secretName: {{ .Values.cloudflare.tunnelSecretSecretName | default (include "cloudflare-tunnel.generate.tunnelsecret-secretname" .) }}
-        - name: cert
-          secret:
-            secretName: {{ .Values.cloudflare.certSecretName | default (include "cloudflare-tunnel.generate.cert-secretname" .) }}
-        - name: config
-          configMap:
-            name: {{ include "cloudflare-tunnel.fullname" . }}
-            items:
-              - key: config.yaml
-                path: config.yaml
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
