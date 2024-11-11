@@ -26,14 +26,14 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create tunnelSecret secret name
 */}}
-{{- define "cloudflare-tunnel.generate.tunnelSecretSecretName" -}}
+{{- define "cloudflare-tunnel.generate.tunnelsecret-secretname" -}}
 {{- printf "%s-tunnelSecret-secretName" (include "cloudflare-tunnel.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create cert secret name
 */}}
-{{- define "cloudflare-tunnel.generate.certSecretName" -}}
+{{- define "cloudflare-tunnel.generate.cert-secretname" -}}
 {{- printf "%s-cert-secretName" (include "cloudflare-tunnel.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- end }}
 

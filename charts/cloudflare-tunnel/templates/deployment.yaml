@@ -75,10 +75,10 @@ spec:
       volumes:
         - name: creds
           secret:
-            secretName: {{ .Values.cloudflare.tunnelSecretSecretName | default (include "cloudflare-tunnel.generate.tunnelSecretSecretName" .) }}
+            secretName: {{ .Values.cloudflare.tunnelSecretSecretName | default (include "cloudflare-tunnel.generate.tunnelsecret-secretname" .) }}
         - name: cert
           secret:
-            secretName: {{ .Values.cloudflare.certSecretName | default (include "cloudflare-tunnel.generate.certSecretName" .) }}
+            secretName: {{ .Values.cloudflare.certSecretName | default (include "cloudflare-tunnel.generate.cert-secretname" .) }}
         - name: config
           configMap:
             name: {{ include "cloudflare-tunnel.fullname" . }}
