@@ -38,12 +38,9 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-            - name: TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.cloudflare.tokenSecretName | default (include "cloudflare-tunnel.generate.token-secretname" .) }}
-                  key: token
+          envFrom:
+            - secretRef:
+              name: {{ .Values.cloudflare.tokenSecretName | default (include "cloudflare-tunnel.generate.token-secretname" .) }}
           args:
             - tunnel
             - run
