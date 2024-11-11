@@ -38,13 +38,17 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          envFrom:
-            - secretRef:
-                name: {{ .Values.cloudflare.tokenSecretName | default (include "cloudflare-tunnel.generate.token-secretname" .) }}
+          env:
+            - name: TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.cloudflare.tokenSecretName | default (include "cloudflare-tunnel.generate.token-secretname" .) }}
+                  key: token
           args:
             - tunnel
             - run
-            - "--token=$(TOKEN)"
+            - --token
+            - $(TOKEN)
           livenessProbe:
             httpGet:
               # Cloudflared has a /ready endpoint which returns 200 if and only if
