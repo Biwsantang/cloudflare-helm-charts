@@ -40,7 +40,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
             - secretRef:
-              name: {{ .Values.cloudflare.tokenSecretName | default (include "cloudflare-tunnel.generate.token-secretname" .) }}
+                name: {{ .Values.cloudflare.tokenSecretName | default (include "cloudflare-tunnel.generate.token-secretname" .) }}
           args:
             - tunnel
             - run
